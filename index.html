@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Horas</title>
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
     <div class="container">
         <h1>Registro de Horas</h1>
         <form id="form-registro">
             <label for="entrada">Entrada:</label>
             <input type="time" id="entrada" required>
-            
+
             <label for="almocoEntrada">Entrada Almoço:</label>
             <input type="time" id="almocoEntrada">
-            
+
             <label for="almocoSaida">Saída Almoço:</label>
             <input type="time" id="almocoSaida">
-            
+
             <label for="saida">Saída:</label>
             <input type="time" id="saida" required>
-            
+
             <button type="button" onclick="salvarRegistro()">Salvar</button>
         </form>
 
@@ -47,6 +49,9 @@
         <button onclick="exportarCSV()">Exportar CSV</button>
         <button onclick="limparRegistros()">Limpar Registros</button>
     </div>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
     <script src="./script.js"></script>
 </body>
+
 </html>
