@@ -19,6 +19,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
 function salvarRegistro() {
     const entrada = document.getElementById("entrada").value;
     const almocoEntrada = document.getElementById("almocoEntrada").value;
