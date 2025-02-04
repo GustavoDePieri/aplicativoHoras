@@ -1,6 +1,3 @@
-// Remova estas linhas
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 // Configuração do Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyBOJitMoSPQtWiYIXsy1T4v814tRLhnS-M",
