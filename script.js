@@ -76,9 +76,27 @@ async function carregarRegistros() {
             btnEditar.textContent = "Editar";
             btnEditar.onclick = () => editarRegistro(doc.id);
             cellAcoes.appendChild(btnEditar);
+
+            // Botão de exclusão
+            let btnExcluir = document.createElement("button");
+            btnExcluir.textContent = "Excluir";
+            btnExcluir.onclick = () => excluirRegistro(doc.id);
+            cellAcoes.appendChild(btnExcluir);
         });
     } catch (error) {
         console.error("Erro ao carregar registros: ", error);
+    }
+}
+
+async function excluirRegistro(id) {
+    if (confirm("Tem certeza que deseja excluir este registro?")) {
+        try {
+            await deleteDoc(doc(db, "registros", id));
+            alert("Registro excluído com sucesso!");
+            carregarRegistros(); // Atualiza a tabela após a exclusão
+        } catch (error) {
+            console.error("Erro ao excluir registro: ", error);
+        }
     }
 }
 
