@@ -1,5 +1,5 @@
-const { initializeApp } = require ("https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js");
-const { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } = require("https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
 // Configuração do Firebase
 const firebaseConfig = {

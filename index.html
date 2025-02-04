@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Horas</title>
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
     <div class="container">
         <h1>Registro de Horas</h1>
@@ -22,7 +24,7 @@
             <label for="saida">Saída:</label>
             <input type="time" id="saida" required>
 
-            <button type="button">Salvar</button>
+            <button type="button" onclick="salvarRegistro()">Salvar</button>
         </form>
 
         <h2>Registros</h2>
@@ -47,10 +49,33 @@
         <button onclick="exportarCSV()">Exportar CSV</button>
         <button onclick="limparRegistros()">Limpar Registros</button>
     </div>
-    <!-- Firebase SDK -->
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js"></script>
-    <!-- Seu script -->
-    <script src="./script.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+      
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBOJitMoSPQtWiYIXsy1T4v814tRLhnS-M",
+            authDomain: "aplicativo-registra-horas.firebaseapp.com",
+            projectId: "aplicativo-registra-horas",
+            storageBucket: "aplicativo-registra-horas.firebasestorage.app",
+            messagingSenderId: "509122969210",
+            appId: "1:509122969210:web:273660fcb9fd30df04c5c3",
+            measurementId: "G-HL98RX8XBG"
+        };
+      
+        // Inicialize o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+      
+        // Exporte as funções necessárias
+        window.salvarRegistro = salvarRegistro;
+        window.carregarRegistros = carregarRegistros;
+        window.editarRegistro = editarRegistro;
+        window.exportarCSV = exportarCSV;
+        window.limparRegistros = limparRegistros;
+      </script>
+    <script type="module" src="./script.js"></script>
 </body>
+
 </html>
