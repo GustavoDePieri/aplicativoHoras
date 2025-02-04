@@ -1,24 +1,17 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBOJitMoSPQtWiYIXsy1T4v814tRLhnS-M",
-  authDomain: "aplicativo-registra-horas.firebaseapp.com",
-  projectId: "aplicativo-registra-horas",
-  storageBucket: "aplicativo-registra-horas.firebasestorage.app",
-  messagingSenderId: "509122969210",
-  appId: "1:509122969210:web:273660fcb9fd30df04c5c3",
-  measurementId: "G-HL98RX8XBG"
+    apiKey: "AIzaSyBOJitMoSPQtWiYIXsy1T4v814tRLhnS-M",
+    authDomain: "aplicativo-registra-horas.firebaseapp.com",
+    projectId: "aplicativo-registra-horas",
+    storageBucket: "aplicativo-registra-horas.firebasestorage.app",
+    messagingSenderId: "509122969210",
+    appId: "1:509122969210:web:273660fcb9fd30df04c5c3",
+    measurementId: "G-HL98RX8XBG"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Inicialize o Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 function salvarRegistro() {
     const entrada = document.getElementById("entrada").value;
@@ -34,7 +27,6 @@ function salvarRegistro() {
     const hoje = new Date();
     const data = hoje.toLocaleDateString("pt-BR");
     const diaSemana = hoje.toLocaleDateString("pt-BR", { weekday: "long" });
-    const mesAno = hoje.toLocaleDateString("pt-BR", { month: "2-digit", year: "numeric" }).replace("/", "-");
 
     const novoRegistro = { data, diaSemana, entrada, almocoEntrada, almocoSaida, saida };
 
@@ -165,6 +157,38 @@ function limparRegistros() {
                 console.error("Erro ao limpar registros: ", error);
             });
     }
+}
+
+// Função para calcular horas trabalhadas
+function calcularHorasTrabalhadas(entrada, almocoEntrada, almocoSaida, saida) {
+    const entradaTime = new Date(`1970-01-01T${entrada}`);
+    const almocoEntradaTime = new Date(`1970-01-01T${almocoEntrada}`);
+    const almocoSaidaTime = new Date(`1970-01-01T${almocoSaida}`);
+    const saidaTime = new Date(`1970-01-01T${saida}`);
+
+    const horasManha = (almocoEntradaTime - entradaTime) / (1000 * 60 * 60);
+    const horasTarde = (saidaTime - almocoSaidaTime) / (1000 * 60 * 60);
+    const totalHoras = horasManha + horasTarde;
+
+    return totalHoras.toFixed(2); // Retorna o total com 2 casas decimais
+}
+
+// Função para validar horários
+function validarHorarios(entrada, almocoEntrada, almocoSaida, saida) {
+    const entradaTime = new Date(`1970-01-01T${entrada}`);
+    const almocoEntradaTime = new Date(`1970-01-01T${almocoEntrada}`);
+    const almocoSaidaTime = new Date(`1970-01-01T${almocoSaida}`);
+    const saidaTime = new Date(`1970-01-01T${saida}`);
+
+    if (entradaTime >= saidaTime) {
+        alert("A entrada deve ser antes da saída.");
+        return false;
+    }
+    if (almocoEntrada && almocoSaida && (almocoEntradaTime <= entradaTime || almocoSaidaTime >= saidaTime)) {
+        alert("O horário de almoço deve estar entre a entrada e a saída.");
+        return false;
+    }
+    return true;
 }
 
 // Carregar registros ao iniciar a página
