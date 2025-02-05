@@ -36,7 +36,6 @@ async function salvarRegistro() {
 
     try {
         await addDoc(collection(db, "registros"), novoRegistro);
-        alert("Registro salvo com sucesso!");
         carregarRegistros();
     } catch (error) {
         console.error("Erro ao salvar registro: ", error);
