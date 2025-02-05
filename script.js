@@ -240,6 +240,12 @@ function validarHorarios(entrada, almocoEntrada, almocoSaida, saida) {
     return true;
 }
 
+// Expor as funções no escopo global
+window.salvarRegistro = salvarRegistro;
+window.exportarCSV = exportarCSV;
+window.limparRegistros = limparRegistros;
+window.editarRegistro = editarRegistro;
+window.excluirRegistro = excluirRegistro;
 // Carregar registros ao iniciar a página
 carregarRegistros();
 
