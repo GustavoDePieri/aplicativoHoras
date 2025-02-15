@@ -308,6 +308,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabela = document.getElementById("registros-tabela");
     const btnToggle = document.getElementById("toggle-registros");
 
+    // Esconde os registros ao carregar a página
+    tabela.style.display = "none";
+    btnToggle.textContent = "Mostrar Registros";
+
     btnToggle.addEventListener("click", () => {
         if (tabela.style.display === "none") {
             tabela.style.display = "table";
