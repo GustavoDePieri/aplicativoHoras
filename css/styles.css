@@ -171,6 +171,20 @@ button {
     opacity: 0.9;
 }
 
+.btn-migrar {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px;
+}
+
+.btn-migrar:hover {
+    opacity: 0.9;
+}
+
 /* Text colors */
 .input-group label {
     color: var(--text-muted);

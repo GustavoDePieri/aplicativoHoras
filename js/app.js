@@ -24,6 +24,9 @@ class PontoApp {
 
         // Adicionar botão de exportar
         this.exportarCsvBtn = document.getElementById('exportar-csv');
+        
+        // Adicionar botão de migração
+        this.migrarDadosBtn = document.getElementById('migrar-dados');
     }
 
     adicionarEventListeners() {
@@ -53,6 +56,11 @@ class PontoApp {
         // Listener para exportar CSV
         if (this.exportarCsvBtn) {
             this.exportarCsvBtn.addEventListener('click', () => this.exportarCSV());
+        }
+        
+        // Listener para migrar dados
+        if (this.migrarDadosBtn) {
+            this.migrarDadosBtn.addEventListener('click', () => this.migrarDados());
         }
     }
 
@@ -278,6 +286,38 @@ class PontoApp {
         } catch (error) {
             console.error('Erro ao exportar CSV:', error);
             alert('Erro ao gerar arquivo CSV!');
+        }
+    }
+
+    async migrarDados() {
+        try {
+            if (!confirm('Tem certeza que deseja migrar os dados da tabela "registros" para a tabela "registro_ponto"? Esta operação não pode ser desfeita.')) {
+                return;
+            }
+            
+            // Desabilitar o botão durante a migração
+            this.migrarDadosBtn.disabled = true;
+            this.migrarDadosBtn.textContent = '🔄 Migrando...';
+            
+            // Executar a migração
+            const resultado = await PontoStorage.migrarParaRegistroPonto();
+            
+            // Exibir resultado
+            alert(`Migração concluída com sucesso!\n\nRegistros migrados: ${resultado.migrados}\nRegistros já existentes: ${resultado.existentes}\nTotal: ${resultado.total}`);
+            
+            // Reabilitar o botão
+            this.migrarDadosBtn.disabled = false;
+            this.migrarDadosBtn.textContent = '🔄 Migrar Dados';
+            
+            // Recarregar os registros
+            this.carregarRegistros();
+        } catch (error) {
+            console.error('Erro ao migrar dados:', error);
+            alert(`Erro ao migrar dados: ${error.message}`);
+            
+            // Reabilitar o botão
+            this.migrarDadosBtn.disabled = false;
+            this.migrarDadosBtn.textContent = '🔄 Migrar Dados';
         }
     }
 }

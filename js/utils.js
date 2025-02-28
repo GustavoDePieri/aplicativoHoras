@@ -80,4 +80,41 @@ class TimeUtils {
 
         return { dataInicial, dataFinal };
     }
+
+    static calcularMinutosTrabalhados(entrada, saida, almocoEntrada, almocoSaida) {
+        if (!entrada || !saida) return 0;
+        
+        const entradaMin = this.converterParaMinutos(entrada);
+        const saidaMin = this.converterParaMinutos(saida);
+        
+        // Se tiver horário de almoço, descontar
+        if (almocoEntrada && almocoSaida) {
+            const almocoEntradaMin = this.converterParaMinutos(almocoEntrada);
+            const almocoSaidaMin = this.converterParaMinutos(almocoSaida);
+            const almocoTotal = almocoSaidaMin - almocoEntradaMin;
+            
+            return (saidaMin - entradaMin) - almocoTotal;
+        }
+        
+        // Sem almoço
+        return saidaMin - entradaMin;
+    }
+    
+    static calcularMinutosSemAlmoco(entrada, saida) {
+        if (!entrada || !saida) return 0;
+        
+        const entradaMin = this.converterParaMinutos(entrada);
+        const saidaMin = this.converterParaMinutos(saida);
+        
+        return saidaMin - entradaMin;
+    }
+    
+    static formatarMinutosEmHoras(minutos) {
+        if (minutos <= 0) return "00:00";
+        
+        const horas = Math.floor(minutos / 60);
+        const mins = minutos % 60;
+        
+        return `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+    }
 }

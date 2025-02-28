@@ -213,6 +213,93 @@ class PontoStorage {
         }
     }
 
+    static async migrarParaRegistroPonto() {
+        try {
+            console.log('Iniciando migração dos registros para registro_ponto...');
+            
+            // Buscar todos os registros antigos
+            const snapshotAntigo = await db.collection('registros').get();
+            
+            if (snapshotAntigo.empty) {
+                console.log('Nenhum registro antigo encontrado.');
+                return;
+            }
+
+            // Contador para acompanhar o progresso
+            let registrosMigrados = 0;
+            let registrosExistentes = 0;
+
+            // Para cada registro antigo
+            for (const doc of snapshotAntigo.docs) {
+                const dadosAntigos = doc.data();
+                
+                // Converter a data do formato DD/MM/YYYY para YYYY-MM-DD
+                const [dia, mes, ano] = dadosAntigos.data.split('/');
+                const dataFormatada = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+                
+                // Verificar se já existe um registro na nova coleção
+                const registroExistente = await db.collection('registro_ponto')
+                    .doc(dataFormatada)
+                    .get();
+
+                if (!registroExistente.exists) {
+                    // Calcular total de horas
+                    let totalHoras = "";
+                    
+                    if (dadosAntigos.entrada && dadosAntigos.saida) {
+                        // Se tiver almoço, considerar na conta
+                        if (dadosAntigos.almocoEntrada && dadosAntigos.almocoSaida) {
+                            const minutosTrabalhados = TimeUtils.calcularMinutosTrabalhados(
+                                dadosAntigos.entrada,
+                                dadosAntigos.saida,
+                                dadosAntigos.almocoEntrada,
+                                dadosAntigos.almocoSaida
+                            );
+                            totalHoras = TimeUtils.formatarMinutosEmHoras(minutosTrabalhados);
+                        } else {
+                            // Sem almoço, cálculo direto
+                            const minutosTrabalhados = TimeUtils.calcularMinutosSemAlmoco(
+                                dadosAntigos.entrada,
+                                dadosAntigos.saida
+                            );
+                            totalHoras = TimeUtils.formatarMinutosEmHoras(minutosTrabalhados);
+                        }
+                    }
+
+                    // Criar o novo formato do registro
+                    const novoRegistro = {
+                        entrada: dadosAntigos.entrada || "",
+                        almoco: dadosAntigos.almocoEntrada || "",
+                        saida: dadosAntigos.saida || "",
+                        totalHoras: totalHoras,
+                        notas: `Dia da semana: ${dadosAntigos.diaSemana || ""}`
+                    };
+
+                    // Salvar na nova coleção
+                    await db.collection('registro_ponto')
+                        .doc(dataFormatada)
+                        .set(novoRegistro);
+
+                    console.log(`Registro migrado com sucesso: ${dataFormatada}`);
+                    registrosMigrados++;
+                } else {
+                    console.log(`Registro já existe na nova coleção: ${dataFormatada}`);
+                    registrosExistentes++;
+                }
+            }
+
+            console.log(`Migração concluída com sucesso! ${registrosMigrados} registros migrados, ${registrosExistentes} já existentes.`);
+            return {
+                migrados: registrosMigrados,
+                existentes: registrosExistentes,
+                total: registrosMigrados + registrosExistentes
+            };
+        } catch (error) {
+            console.error('Erro durante a migração:', error);
+            throw error;
+        }
+    }
+
     static async buscarTodosRegistros() {
         try {
             const snapshot = await db.collection(this.COLLECTION)
