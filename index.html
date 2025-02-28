@@ -29,15 +29,31 @@
 
         <!-- Filtros -->
         <div class="filtros">
-            <button class="filtro-btn active" data-periodo="dia">Hoje</button>
-            <button class="filtro-btn" data-periodo="semana">Semana</button>
-            <button class="filtro-btn" data-periodo="mes">Mês</button>
+            <div class="seletor-mes">
+                <select id="mes-select">
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
+                </select>
+                <select id="ano-select">
+                    <!-- Será preenchido via JavaScript -->
+                </select>
+                <button id="filtrar-mes-ano">Filtrar</button>
+            </div>
         </div>
 
         <!-- Após os filtros e antes da lista de registros -->
         <div class="acoes-extras">
             <button id="exportar-csv" class="btn-exportar">📊 Exportar CSV</button>
-            <button id="migrar-dados" class="btn-migrar">🔄 Migrar Dados</button>
         </div>
 
         <!-- Lista de Registros -->

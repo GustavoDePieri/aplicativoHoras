@@ -117,4 +117,42 @@ class TimeUtils {
         
         return `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
     }
+    
+    static calcularPeriodoMesAno(mes, ano) {
+        // Mês é baseado em zero (0 = Janeiro, 11 = Dezembro)
+        const dataInicial = new Date(ano, mes, 1);
+        const dataFinal = new Date(ano, parseInt(mes) + 1, 0);
+        
+        return {
+            dataInicial: dataInicial.toISOString().split('T')[0],
+            dataFinal: dataFinal.toISOString().split('T')[0]
+        };
+    }
+    
+    static obterHoraAtual() {
+        const agora = new Date();
+        const horas = String(agora.getHours()).padStart(2, '0');
+        const minutos = String(agora.getMinutes()).padStart(2, '0');
+        return `${horas}:${minutos}`;
+    }
+    
+    static obterMesAtual() {
+        return new Date().getMonth();
+    }
+    
+    static obterAnoAtual() {
+        return new Date().getFullYear();
+    }
+    
+    static gerarAnosDisponiveis() {
+        const anoAtual = this.obterAnoAtual();
+        const anos = [];
+        
+        // Gerar lista de anos (ano atual - 2 até ano atual + 1)
+        for (let i = anoAtual - 2; i <= anoAtual + 1; i++) {
+            anos.push(i);
+        }
+        
+        return anos;
+    }
 }

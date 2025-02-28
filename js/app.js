@@ -1,9 +1,10 @@
 class PontoApp {
     constructor() {
         this.inicializarElementos();
+        this.preencherSeletorAno();
+        this.configurarMesAnoAtual();
         this.adicionarEventListeners();
-        this.periodoAtual = 'dia';
-        this.carregarRegistros();
+        this.carregarRegistrosMesAtual();
     }
 
     inicializarElementos() {
@@ -13,20 +14,54 @@ class PontoApp {
         this.saidaInput = document.getElementById('saida');
         this.salvarBtn = document.getElementById('salvar');
 
-        // Filtros e lista
-        this.filtros = document.querySelectorAll('.filtro-btn');
+        // Lista de registros
         this.listaRegistros = document.getElementById('lista-registros');
+        
+        // Seletor de mês e ano
+        this.mesSelect = document.getElementById('mes-select');
+        this.anoSelect = document.getElementById('ano-select');
+        this.filtrarMesAnoBtn = document.getElementById('filtrar-mes-ano');
 
         // Configurar horário de almoço inicial
         if (this.almocoInput) {
             this.almocoInput.value = TimeUtils.gerarHorarioAlmoco();
         }
+        
+        // Preencher automaticamente o horário de entrada com a hora atual
+        if (this.entradaInput && !this.entradaInput.value) {
+            this.entradaInput.value = TimeUtils.obterHoraAtual();
+        }
 
         // Adicionar botão de exportar
         this.exportarCsvBtn = document.getElementById('exportar-csv');
+    }
+    
+    preencherSeletorAno() {
+        const anos = TimeUtils.gerarAnosDisponiveis();
+        const anoAtual = TimeUtils.obterAnoAtual();
         
-        // Adicionar botão de migração
-        this.migrarDadosBtn = document.getElementById('migrar-dados');
+        // Limpar seletor
+        this.anoSelect.innerHTML = '';
+        
+        // Adicionar opções
+        anos.forEach(ano => {
+            const option = document.createElement('option');
+            option.value = ano;
+            option.textContent = ano;
+            
+            // Selecionar o ano atual por padrão
+            if (ano === anoAtual) {
+                option.selected = true;
+            }
+            
+            this.anoSelect.appendChild(option);
+        });
+    }
+    
+    configurarMesAnoAtual() {
+        // Selecionar o mês atual por padrão
+        const mesAtual = TimeUtils.obterMesAtual();
+        this.mesSelect.value = mesAtual;
     }
 
     adicionarEventListeners() {
@@ -43,24 +78,75 @@ class PontoApp {
                 }
             });
         }
-
-        // Listeners para filtros
-        this.filtros.forEach(filtro => {
-            filtro.addEventListener('click', () => {
-                this.periodoAtual = filtro.dataset.periodo;
-                this.atualizarFiltroAtivo(filtro);
-                this.carregarRegistros();
+        
+        // Listener para filtrar por mês e ano
+        if (this.filtrarMesAnoBtn) {
+            this.filtrarMesAnoBtn.addEventListener('click', () => {
+                this.filtrarPorMesAno();
             });
-        });
+        }
 
         // Listener para exportar CSV
         if (this.exportarCsvBtn) {
             this.exportarCsvBtn.addEventListener('click', () => this.exportarCSV());
         }
         
-        // Listener para migrar dados
-        if (this.migrarDadosBtn) {
-            this.migrarDadosBtn.addEventListener('click', () => this.migrarDados());
+        // Listener para saída (preencher automaticamente com a hora atual)
+        if (this.saidaInput) {
+            this.saidaInput.addEventListener('focus', () => {
+                if (!this.saidaInput.value) {
+                    this.saidaInput.value = TimeUtils.obterHoraAtual();
+                }
+            });
+        }
+    }
+    
+    async carregarRegistrosMesAtual() {
+        try {
+            const mes = this.mesSelect.value;
+            const ano = this.anoSelect.value;
+            
+            // Calcular período
+            const { dataInicial, dataFinal } = TimeUtils.calcularPeriodoMesAno(mes, ano);
+            
+            // Buscar registros
+            const registros = await PontoStorage.buscarPorPeriodo(dataInicial, dataFinal);
+            
+            // Exibir registros
+            this.exibirRegistros(registros);
+            
+            // Atualizar título da lista
+            const nomeMes = this.mesSelect.options[this.mesSelect.selectedIndex].text;
+            this.listaRegistros.insertAdjacentHTML('afterbegin', 
+                `<h2 class="titulo-periodo">Registros de ${nomeMes} de ${ano}</h2>`);
+                
+        } catch (error) {
+            console.error('Erro ao carregar registros do mês atual:', error);
+            this.listaRegistros.innerHTML = '<p>Erro ao carregar registros.</p>';
+        }
+    }
+    
+    async filtrarPorMesAno() {
+        try {
+            const mes = this.mesSelect.value;
+            const ano = this.anoSelect.value;
+            
+            // Calcular período
+            const { dataInicial, dataFinal } = TimeUtils.calcularPeriodoMesAno(mes, ano);
+            
+            // Buscar registros
+            const registros = await PontoStorage.buscarPorPeriodo(dataInicial, dataFinal);
+            
+            // Exibir registros
+            this.exibirRegistros(registros);
+            
+            // Atualizar título da lista
+            const nomeMes = this.mesSelect.options[this.mesSelect.selectedIndex].text;
+            this.listaRegistros.innerHTML = `<h2 class="titulo-periodo">Registros de ${nomeMes} de ${ano}</h2>` + this.listaRegistros.innerHTML;
+                
+        } catch (error) {
+            console.error('Erro ao filtrar por mês e ano:', error);
+            alert('Erro ao filtrar registros!');
         }
     }
 
@@ -86,24 +172,16 @@ class PontoApp {
             const sucesso = await PontoStorage.salvar(hoje, registro);
             if (sucesso) {
                 alert('Registro salvo com sucesso!');
-                this.carregarRegistros();
+                this.carregarRegistrosMesAtual();
+                
+                // Limpar campos após salvar
+                this.saidaInput.value = '';
             } else {
                 alert('Erro ao salvar registro!');
             }
         } catch (error) {
             console.error('Erro ao salvar registro:', error);
             alert('Erro ao salvar registro!');
-        }
-    }
-
-    async carregarRegistros() {
-        try {
-            const { dataInicial, dataFinal } = TimeUtils.calcularPeriodo(this.periodoAtual);
-            const registros = await PontoStorage.buscarPorPeriodo(dataInicial, dataFinal);
-            this.exibirRegistros(registros);
-        } catch (error) {
-            console.error('Erro ao carregar registros:', error);
-            this.listaRegistros.innerHTML = '<p>Erro ao carregar registros.</p>';
         }
     }
 
@@ -152,13 +230,6 @@ class PontoApp {
         this.listaRegistros.innerHTML = html;
     }
 
-    atualizarFiltroAtivo(filtroAtivo) {
-        this.filtros.forEach(filtro => {
-            filtro.classList.remove('active');
-        });
-        filtroAtivo.classList.add('active');
-    }
-
     async editarRegistro(data) {
         const registroCard = document.getElementById(`registro-${data}`);
         const formEdit = document.getElementById(`edit-${data}`);
@@ -183,7 +254,7 @@ class PontoApp {
             const sucesso = await PontoStorage.salvar(data, registro);
             if (sucesso) {
                 alert('Registro atualizado com sucesso!');
-                this.carregarRegistros();
+                this.carregarRegistrosMesAtual();
             } else {
                 alert('Erro ao atualizar registro!');
             }
@@ -206,7 +277,7 @@ class PontoApp {
                 const sucesso = await PontoStorage.excluir(data);
                 if (sucesso) {
                     alert('Registro excluído com sucesso!');
-                    this.carregarRegistros();
+                    this.carregarRegistrosMesAtual();
                 } else {
                     alert('Erro ao excluir registro!');
                 }
@@ -219,7 +290,17 @@ class PontoApp {
 
     async exportarCSV() {
         try {
-            const { dataInicial, dataFinal } = TimeUtils.calcularPeriodo('mes');
+            // Usar o mês e ano selecionados
+            const mes = this.mesSelect.value;
+            const ano = this.anoSelect.value;
+            const nomeMes = this.mesSelect.options[this.mesSelect.selectedIndex].text;
+            
+            const periodo = TimeUtils.calcularPeriodoMesAno(mes, ano);
+            const dataInicial = periodo.dataInicial;
+            const dataFinal = periodo.dataFinal;
+            
+            const titulo = `${nomeMes}_${ano}`;
+            
             const registros = await PontoStorage.buscarPorPeriodo(dataInicial, dataFinal);
             
             // Calcular resumo
@@ -245,7 +326,7 @@ class PontoApp {
             const totalExtras = TimeUtils.converterParaHoras(horasExtras);
             
             // Mostrar resumo
-            const resumo = `📊 Resumo do Mês\n\n` +
+            const resumo = `📊 Resumo do Período\n\n` +
                           `📅 Dias trabalhados: ${diasTrabalhados}\n` +
                           `⏰ Total de horas: ${totalHoras}\n` +
                           `⭐ Horas extras: ${totalExtras}`;
@@ -275,7 +356,7 @@ class PontoApp {
             const url = URL.createObjectURL(blob);
             
             link.setAttribute('href', url);
-            link.setAttribute('download', `registros_ponto_${TimeUtils.obterDataAtual()}.csv`);
+            link.setAttribute('download', `registro_ponto_${titulo}.csv`);
             link.style.visibility = 'hidden';
             
             document.body.appendChild(link);
@@ -286,38 +367,6 @@ class PontoApp {
         } catch (error) {
             console.error('Erro ao exportar CSV:', error);
             alert('Erro ao gerar arquivo CSV!');
-        }
-    }
-
-    async migrarDados() {
-        try {
-            if (!confirm('Tem certeza que deseja migrar os dados da tabela "registros" para a tabela "registro_ponto"? Esta operação não pode ser desfeita.')) {
-                return;
-            }
-            
-            // Desabilitar o botão durante a migração
-            this.migrarDadosBtn.disabled = true;
-            this.migrarDadosBtn.textContent = '🔄 Migrando...';
-            
-            // Executar a migração
-            const resultado = await PontoStorage.migrarParaRegistroPonto();
-            
-            // Exibir resultado
-            alert(`Migração concluída com sucesso!\n\nRegistros migrados: ${resultado.migrados}\nRegistros já existentes: ${resultado.existentes}\nTotal: ${resultado.total}`);
-            
-            // Reabilitar o botão
-            this.migrarDadosBtn.disabled = false;
-            this.migrarDadosBtn.textContent = '🔄 Migrar Dados';
-            
-            // Recarregar os registros
-            this.carregarRegistros();
-        } catch (error) {
-            console.error('Erro ao migrar dados:', error);
-            alert(`Erro ao migrar dados: ${error.message}`);
-            
-            // Reabilitar o botão
-            this.migrarDadosBtn.disabled = false;
-            this.migrarDadosBtn.textContent = '🔄 Migrar Dados';
         }
     }
 }
