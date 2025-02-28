@@ -1,0 +1,206 @@
+:root {
+    --primary-color: #7289DA;      /* Discord blue */
+    --secondary-color: #FAB005;    /* Warm yellow */
+    --danger-color: #E06C75;       /* Soft red */
+    --success-color: #98C379;      /* Soft green */
+    --text-color: #DCDDDE;         /* Light gray text */
+    --text-muted: #8E9297;         /* Muted text */
+    --bg-color: #2F3136;           /* Dark background */
+    --card-bg: #36393F;            /* Slightly lighter dark */
+    --input-bg: #40444B;           /* Input background */
+    --border-color: #202225;       /* Very dark for borders */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+}
+
+/* Formulário */
+.form-container {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+#salvar {
+    background-color: var(--success-color);
+    color: var(--bg-color);
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Filtros */
+.filtros {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filtro-btn {
+    background-color: var(--card-bg);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.filtro-btn.active {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+/* Lista de Registros */
+.registro-card {
+    background-color: var(--card-bg);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.registro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.registro-data {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.registro-acoes {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-editar {
+    background-color: var(--secondary-color);
+    color: var(--bg-color);
+}
+
+.btn-excluir {
+    background-color: var(--danger-color);
+    color: var(--text-color);
+}
+
+.registro-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.registro-info p {
+    margin: 0;
+}
+
+.registro-form-edit {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.acoes-extras {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.btn-exportar {
+    background-color: var(--secondary-color);
+    color: var(--bg-color);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-exportar:hover {
+    opacity: 0.9;
+}
+
+/* Text colors */
+.input-group label {
+    color: var(--text-muted);
+}
+
+.registro-info {
+    color: var(--text-muted);
+}
+
+/* Hover effects */
+button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
