@@ -1,5 +1,5 @@
 class PontoStorage {
-    static COLLECTION = 'registros_ponto';
+    static COLLECTION = 'registro_ponto';
 
     static async salvar(data, registro) {
         try {
