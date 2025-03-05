@@ -126,67 +126,6 @@ class PontoStorage {
         return csv;
     }
 
-    static async migrarRegistrosAntigos() {
-        try {
-            console.log('Iniciando migração dos registros antigos...');
-            
-            // Buscar todos os registros antigos
-            const snapshotAntigo = await db.collection('registros').get();
-            
-            if (snapshotAntigo.empty) {
-                console.log('Nenhum registro antigo encontrado.');
-                return;
-            }
-
-            // Para cada registro antigo
-            for (const doc of snapshotAntigo.docs) {
-                const dadosAntigos = doc.data();
-                
-                // Converter a data do formato DD/MM/YYYY para YYYY-MM-DD
-                const [dia, mes, ano] = dadosAntigos.data.split('/');
-                const dataFormatada = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
-                
-                // Verificar se já existe um registro na nova coleção
-                const registroExistente = await db.collection(this.COLLECTION)
-                    .doc(dataFormatada)
-                    .get();
-
-                if (!registroExistente.exists) {
-                    // Calcular total de horas
-                    const totalHoras = this.calcularTotalHoras(
-                        dadosAntigos.entrada,
-                        dadosAntigos.saida,
-                        dadosAntigos.almocoEntrada,
-                        dadosAntigos.almocoSaida
-                    );
-
-                    // Criar o novo formato do registro
-                    const novoRegistro = {
-                        entrada: dadosAntigos.entrada || '',
-                        almoco: dadosAntigos.almocoEntrada || '',
-                        saida: dadosAntigos.saida || '',
-                        totalHoras: totalHoras,
-                        notas: `Dia da semana: ${dadosAntigos.diaSemana}` // Preservar informação do dia da semana
-                    };
-
-                    // Salvar na nova coleção
-                    await db.collection(this.COLLECTION)
-                        .doc(dataFormatada)
-                        .set(novoRegistro);
-
-                    console.log(`Registro migrado com sucesso: ${dataFormatada}`);
-                } else {
-                    console.log(`Registro já existe na nova coleção: ${dataFormatada}`);
-                }
-            }
-
-            console.log('Migração concluída com sucesso!');
-            return true;
-        } catch (error) {
-            console.error('Erro durante a migração:', error);
-            throw error;
-        }
-    }
 
     static calcularTotalHoras(entrada, saida, almocoEntrada, almocoSaida) {
         if (!entrada || !saida || !almocoEntrada || !almocoSaida) {

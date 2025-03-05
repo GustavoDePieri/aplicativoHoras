@@ -9,6 +9,7 @@ class PontoApp {
 
     inicializarElementos() {
         // Inputs do formulário
+        this.dataInput = document.getElementById('data');
         this.entradaInput = document.getElementById('entrada');
         this.almocoInput = document.getElementById('almoco');
         this.saidaInput = document.getElementById('saida');
@@ -21,6 +22,11 @@ class PontoApp {
         this.mesSelect = document.getElementById('mes-select');
         this.anoSelect = document.getElementById('ano-select');
         this.filtrarMesAnoBtn = document.getElementById('filtrar-mes-ano');
+
+        // Configurar data atual
+        if (this.dataInput && !this.dataInput.value) {
+            this.dataInput.value = TimeUtils.obterDataAtual();
+        }
 
         // Configurar horário de almoço inicial
         if (this.almocoInput) {
@@ -157,7 +163,12 @@ class PontoApp {
                 return;
             }
 
-            const hoje = TimeUtils.obterDataAtual();
+            if (!this.dataInput.value) {
+                alert('Selecione uma data para o registro!');
+                return;
+            }
+
+            const data = this.dataInput.value;
             const registro = {
                 entrada: this.entradaInput.value,
                 almoco: this.almocoInput.value,
@@ -169,7 +180,7 @@ class PontoApp {
                 )
             };
 
-            const sucesso = await PontoStorage.salvar(hoje, registro);
+            const sucesso = await PontoStorage.salvar(data, registro);
             if (sucesso) {
                 alert('Registro salvo com sucesso!');
                 this.carregarRegistrosMesAtual();

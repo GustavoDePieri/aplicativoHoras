@@ -46,7 +46,8 @@ class TimeUtils {
     }
 
     static obterDataAtual() {
-        return new Date().toISOString().split('T')[0];
+        const hoje = new Date();
+        return hoje.toISOString().split('T')[0];
     }
 
     static calcularPeriodo(tipo) {
@@ -131,9 +132,11 @@ class TimeUtils {
     
     static obterHoraAtual() {
         const agora = new Date();
-        const horas = String(agora.getHours()).padStart(2, '0');
-        const minutos = String(agora.getMinutes()).padStart(2, '0');
-        return `${horas}:${minutos}`;
+        return agora.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
     }
     
     static obterMesAtual() {
