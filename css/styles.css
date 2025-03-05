@@ -166,11 +166,6 @@ button {
     margin: 0;
 }
 
-.registro-info .horas-extras {
-    color: var(--secondary-color);
-    font-weight: bold;
-}
-
 .registro-form-edit {
     margin-top: 10px;
     padding-top: 10px;

@@ -158,20 +158,4 @@ class TimeUtils {
         
         return anos;
     }
-
-    static isDiaUtil(data) {
-        const date = new Date(data);
-        const diaSemana = date.getDay(); // 0 = Domingo, 6 = Sábado
-        return diaSemana > 0 && diaSemana < 6;
-    }
-
-    static calcularHorasExtras(data, totalMinutos) {
-        if (!this.isDiaUtil(data)) {
-            // Se não for dia útil, todas as horas são extras
-            return totalMinutos;
-        }
-        
-        const minutosDiaRegular = 8 * 60; // 8 horas em minutos
-        return Math.max(0, totalMinutos - minutosDiaRegular);
-    }
 }
