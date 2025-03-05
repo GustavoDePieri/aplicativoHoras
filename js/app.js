@@ -315,8 +315,8 @@ class PontoApp {
             const registros = await PontoStorage.buscarPorPeriodo(dataInicial, dataFinal);
             
             // Calcular resumo
-            let totalMinutos = 0;
-            let horasExtras = 0;
+            let totalMinutosNormais = 0;
+            let totalMinutosExtras = 0;
             let diasTrabalhados = 0;
             
             // Calcular totais
@@ -325,18 +325,20 @@ class PontoApp {
                     diasTrabalhados++;
                     const [horas, minutos] = registro.totalHoras.split(':').map(Number);
                     const minutosTrabalhadosNoDia = horas * 60 + minutos;
-                    totalMinutos += minutosTrabalhadosNoDia;
                     
                     // Calcular horas extras (acima de 8h diárias = 480 minutos)
                     const minutosExtras = Math.max(0, minutosTrabalhadosNoDia - 480);
-                    horasExtras += minutosExtras;
+                    const minutosNormais = Math.min(480, minutosTrabalhadosNoDia);
+                    
+                    totalMinutosNormais += minutosNormais;
+                    totalMinutosExtras += minutosExtras;
                 }
             }
             
             // Converter minutos para formato HH:mm
-            const totalHoras = TimeUtils.converterParaHoras(totalMinutos);
-            const totalExtras = TimeUtils.converterParaHoras(horasExtras);
-            const totalNormal = TimeUtils.converterParaHoras(totalMinutos - horasExtras);
+            const totalHoras = TimeUtils.converterParaHoras(totalMinutosNormais + totalMinutosExtras);
+            const totalNormal = TimeUtils.converterParaHoras(totalMinutosNormais);
+            const totalExtras = TimeUtils.converterParaHoras(totalMinutosExtras);
             
             // Mostrar resumo
             const resumo = `📊 Resumo do Período\n\n` +
