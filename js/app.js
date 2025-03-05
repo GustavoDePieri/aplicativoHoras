@@ -169,15 +169,21 @@ class PontoApp {
             }
 
             const data = this.dataInput.value;
+            const minutosTrabalhados = TimeUtils.calcularHorasTrabalhadas(
+                this.entradaInput.value,
+                this.saidaInput.value,
+                this.almocoInput.value
+            );
+
+            const minutosExtras = TimeUtils.calcularHorasExtras(data, minutosTrabalhados);
+
             const registro = {
                 entrada: this.entradaInput.value,
                 almoco: this.almocoInput.value,
                 saida: this.saidaInput.value,
-                totalHoras: TimeUtils.calcularHorasTrabalhadas(
-                    this.entradaInput.value,
-                    this.saidaInput.value,
-                    this.almocoInput.value
-                )
+                totalHoras: TimeUtils.converterParaHoras(minutosTrabalhados),
+                horasExtras: TimeUtils.converterParaHoras(minutosExtras),
+                isDiaUtil: TimeUtils.isDiaUtil(data)
             };
 
             const sucesso = await PontoStorage.salvar(data, registro);
@@ -216,6 +222,7 @@ class PontoApp {
                     <p>Almoço: ${registro.almoco || '--:--'}</p>
                     <p>Saída: ${registro.saida || '--:--'}</p>
                     <p>Total: ${registro.totalHoras || '--:--'}</p>
+                    <p class="horas-extras">${registro.isDiaUtil ? 'Horas Extras:' : 'Horas (Fim de Semana):'} ${registro.horasExtras || '--:--'}</p>
                 </div>
                 <div class="registro-form-edit" id="edit-${data}" style="display: none;">
                     <div class="input-group">
@@ -316,40 +323,55 @@ class PontoApp {
             
             // Calcular resumo
             let totalMinutos = 0;
-            let horasExtras = 0;
+            let totalMinutosExtras = 0;
             let diasTrabalhados = 0;
+            let diasUteisTrabalhados = 0;
+            let diasFimSemanaTrabalhados = 0;
             
-            for (const registro of Object.values(registros)) {
+            for (const [data, registro] of Object.entries(registros)) {
                 if (registro.totalHoras) {
                     diasTrabalhados++;
                     const [horas, minutos] = registro.totalHoras.split(':').map(Number);
                     const minutosTrabalhadosNoDia = horas * 60 + minutos;
                     totalMinutos += minutosTrabalhadosNoDia;
                     
-                    // Calcular horas extras (acima de 8h diárias)
-                    const minutosExtras = Math.max(0, minutosTrabalhadosNoDia - (8 * 60));
-                    horasExtras += minutosExtras;
+                    // Contabilizar horas extras
+                    if (registro.horasExtras) {
+                        const [horasExtras, minutosExtras] = registro.horasExtras.split(':').map(Number);
+                        const minutosExtrasNoDia = horasExtras * 60 + minutosExtras;
+                        totalMinutosExtras += minutosExtrasNoDia;
+                    }
+
+                    // Contabilizar dias úteis e fim de semana
+                    if (registro.isDiaUtil) {
+                        diasUteisTrabalhados++;
+                    } else {
+                        diasFimSemanaTrabalhados++;
+                    }
                 }
             }
             
             // Converter minutos para formato HH:mm
             const totalHoras = TimeUtils.converterParaHoras(totalMinutos);
-            const totalExtras = TimeUtils.converterParaHoras(horasExtras);
+            const totalHorasExtras = TimeUtils.converterParaHoras(totalMinutosExtras);
             
             // Mostrar resumo
             const resumo = `📊 Resumo do Período\n\n` +
                           `📅 Dias trabalhados: ${diasTrabalhados}\n` +
+                          `   • Dias úteis: ${diasUteisTrabalhados}\n` +
+                          `   • Fins de semana: ${diasFimSemanaTrabalhados}\n` +
                           `⏰ Total de horas: ${totalHoras}\n` +
-                          `⭐ Horas extras: ${totalExtras}`;
+                          `⭐ Total de horas extras: ${totalHorasExtras}`;
             
             alert(resumo);
             
-            // Continua com a exportação do CSV...
-            let csv = 'Data,Dia da Semana,Entrada,Almoço,Saída,Total Horas\n';
+            // Exportação do CSV
+            let csv = 'Data,Dia da Semana,Entrada,Almoço,Saída,Total Horas,Horas Extras,Tipo de Dia\n';
             
             for (const [data, registro] of Object.entries(registros)) {
                 const dataFormatada = TimeUtils.formatarData(data);
                 const diaSemana = dataFormatada.split(',')[0];
+                const tipoDia = registro.isDiaUtil ? 'Dia Útil' : 'Fim de Semana';
                 
                 csv += [
                     dataFormatada.split(',')[1].trim(),
@@ -357,7 +379,9 @@ class PontoApp {
                     registro.entrada || '',
                     registro.almoco || '',
                     registro.saida || '',
-                    registro.totalHoras || ''
+                    registro.totalHoras || '',
+                    registro.horasExtras || '',
+                    tipoDia
                 ].join(',') + '\n';
             }
             
